@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ad-inference
+  namespace: adtoolbox
+  labels:
+    app: adinference
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adinference
+  template:
+    metadata:
+      labels:
+        app: adinference
+    spec:
+      containers:
+        - name: ad-inference-container
+          image: armdocker.rnd.ericsson.se/sandbox/ad-toolbox-inference:v1.0
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always

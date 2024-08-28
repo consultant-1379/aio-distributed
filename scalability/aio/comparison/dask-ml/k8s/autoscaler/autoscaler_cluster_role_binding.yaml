@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: dask-autoscaler-rbac
+subjects:
+- kind: ServiceAccount
+  name: dask-operator-dask-kubernetes-operator
+  namespace: dask-operator
+roleRef:
+  kind: ClusterRole
+  name: dask-autoscaler-role
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,9 @@
+numpy~=1.6
+fastapi
+uvicorn
+pydantic
+boto3==1.24.14
+joblib==1.1.0
+scikit-learn==1.1.0
+pandas~=1.4.2
+kubernetes==24.2.0

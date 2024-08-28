@@ -1,0 +1,3 @@
+from .test_prophet_forecasting import TestProphetForecast
+from .test_spot import TestSpotThresholding
+from .test_zscore_thresholding import TestZscoreThresholding

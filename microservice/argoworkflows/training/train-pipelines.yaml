@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: train-pipelines-
+spec:
+  entrypoint: start-training
+  templates:
+  - name: start-training
+    steps:
+    - - name: train-feature-eng-pipeline
+        template: featureeng-trainer
+    - - name: train-and-forecast
+        template: ad-trainer
+        arguments:
+          parameters:
+            - name: entryPoint
+              value: "train-and-forecast"
+    - - name: calculate-residual
+        template: ad-trainer
+        arguments:
+          parameters:
+            - name: entryPoint
+              value: "calculate-residual"
+    - - name: train-thresholding
+        template: ad-trainer
+        arguments:
+          parameters:
+            - name: entryPoint
+              value: "train-thresholding"
+
+
+  - name: featureeng-trainer
+    container:
+      image: armdocker.rnd.ericsson.se/sandbox/featureeng-training:v1.0
+      imagePullPolicy: Always
+      command: ["train-fe-pipeline"]
+
+  - name: ad-trainer
+    inputs:
+      parameters:
+        - name: entryPoint
+    container:
+      image: armdocker.rnd.ericsson.se/sandbox/ad-training:v1.0
+      imagePullPolicy: Always
+      command: ["{{inputs.parameters.entryPoint}}"]

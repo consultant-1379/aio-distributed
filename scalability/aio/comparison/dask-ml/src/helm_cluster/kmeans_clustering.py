@@ -1,0 +1,41 @@
+from dask import dataframe as dd
+from dask_ml.cluster import KMeans
+import argparse
+from dask.distributed import Client
+import sys
+print('inside script kmeans clustering')
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--input_path")
+args = parser.parse_args()
+input_path = args.input_path
+print('input data path ', input_path)
+# client = Client("myhelmrelease-dask-scheduler.daskhelm.svc.cluster.local:8786")
+client = Client("10.196.120.232:30760")
+# df = dd.read_csv(input_path + "*",
+#                  storage_options={"key": 'root', "secret": 'password123',
+#                                   "use_listings_cache": False,
+#                                   "client_kwargs": {
+#                                       "endpoint_url":
+#                                           "http://10.98.146.20:9000"}})
+
+df = dd.read_csv(input_path + "*",
+                 storage_options={"key": 'root', "secret": 'password123',
+                                  "use_listings_cache": False,
+                                  "client_kwargs": {
+                                      "endpoint_url":
+                                          "http://10.196.120.232:31450/"}})
+
+X_tain_dask_array = df.drop('target', axis=1).to_dask_array(lengths=True)
+kmeans_model = KMeans(n_clusters=3, random_state=1, max_iter=20, init_max_iter=2, init='k-means||', tol=0.0001)
+
+print('training chunk size', X_tain_dask_array.chunksize)
+print('training number of chunks', X_tain_dask_array.chunks)
+
+kmeans_model.fit(X=X_tain_dask_array)
+
+print('cluster centers', kmeans_model.cluster_centers_)
+print('labels', kmeans_model.labels_)
+print('steps to reach convergence', kmeans_model.n_iter_)
+
+sys.exit("kmeans clustering completed")

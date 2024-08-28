@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: create-trainer-
+spec:
+  entrypoint: get-trainer
+  templates:
+  - name: get-trainer
+    steps:
+    - - name: create-feature-eng-pipeline
+        template: toolbox-client
+        arguments:
+          parameters:
+            - name: entryPoint
+              value: "feature-eng-client"
+      - name: create-forecasting-pipeline
+        template: toolbox-client
+        arguments:
+          parameters:
+            - name: entryPoint
+              value: "ad-forecasting-client"
+      - name: create-ad-thresholding-pipeline
+        template: toolbox-client
+        arguments:
+          parameters:
+            - name: entryPoint
+              value: "ad-thresholding-client"
+
+  - name: toolbox-client
+    inputs:
+      parameters:
+        - name: entryPoint
+    container:
+      image: armdocker.rnd.ericsson.se/sandbox/toolboxclient:v1.0
+      imagePullPolicy: Always
+      command: ["{{inputs.parameters.entryPoint}}"]

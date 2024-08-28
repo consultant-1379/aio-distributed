@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ad-app
+  namespace: adtoolbox
+  labels:
+    app: adservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adservice
+  template:
+    metadata:
+      labels:
+        app: adservice
+    spec:
+      containers:
+        - name: adcontainer
+          image: armdocker.rnd.ericsson.se/sandbox/ad-microservice:v1.0
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always

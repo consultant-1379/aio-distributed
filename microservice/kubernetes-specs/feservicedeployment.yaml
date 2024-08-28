@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fe-app
+  namespace: adtoolbox
+  labels:
+    app: feservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: feservice
+  template:
+    metadata:
+      labels:
+        app: feservice
+    spec:
+      containers:
+        - name: fecontainer
+          image: armdocker.rnd.ericsson.se/sandbox/featureeng-microservice:v1.0
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always

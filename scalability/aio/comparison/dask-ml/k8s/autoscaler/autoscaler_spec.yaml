@@ -1,0 +1,9 @@
+apiVersion: kubernetes.dask.org/v1
+kind: DaskAutoscaler
+metadata:
+  name: myautoscaler
+  namespace: dask-operator
+spec:
+  cluster: "mycluster"
+  minimum: 3
+  maximum: 6

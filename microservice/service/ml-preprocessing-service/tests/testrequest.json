@@ -1,0 +1,32 @@
+{
+   	"steps": [
+   		{
+   			"step":"StandardScaler",
+   			"column":"test",
+   			"params":[
+   				{
+   				"key":"copy",
+   				"value": "True"
+   				},
+   				{
+   				"key":"with_mean",
+   				"value": "True"
+   				}
+   				]
+   		},
+   			{
+   			"step":"StandardScaler",
+   			"column":"value",
+   			"params":[
+   				{
+   				"key":"copy",
+   				"value": "True"
+   				},
+   				{
+   				"key":"with_mean",
+   				"value": "True"
+   				}
+   				]
+   		}
+   		]
+}

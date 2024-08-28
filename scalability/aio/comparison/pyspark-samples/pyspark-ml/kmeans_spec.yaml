@@ -1,0 +1,63 @@
+apiVersion: "sparkoperator.k8s.io/v1beta2"
+kind: SparkApplication
+metadata:
+  name: kmeans-pyspark-run1
+  namespace: sparktest
+spec:
+  type: Python
+  pythonVersion: "3"
+  mode: cluster
+  image: "armdocker.rnd.ericsson.se/sandbox/sparkperf:v1.2"
+  arguments:
+    - s3a://clustering/10GB/
+
+  imagePullPolicy: Always
+  mainApplicationFile: local:///opt/spark/perf/kmeans_clustering.py
+  sparkVersion: "3.1.1"
+  restartPolicy:
+    type: Never
+    onFailureRetries: 3
+    onFailureRetryInterval: 10
+    onSubmissionFailureRetries: 5
+    onSubmissionFailureRetryInterval: 20
+  driver:
+    cores: 1
+    coreLimit: "1"
+    #spark adds an overhead of 0.40 of configured memory or 384 MB (whichever is max) to the configured memory
+    # if you want to limit your pod memory follow below instructions
+
+    # if your expected pod memory is less than 1344 MB , configure (target memory -384)
+    # example if you want 1024m configure 640 (1024-384)
+    #Pod memory = 640+max (640*0.40,384) = 1024m
+
+    # if your expected pod memory is more than 1344 MB , configure (target memory * (5/7))
+    # example if you want 2048m configure 1463 (2048 * (5/7) = 1462.85)
+    # Pod memory = 1463 + max (1463*0.40,384) = 2048.2
+
+    # describe you driver pod & crosscheck the limit
+
+    memory: 640m
+    labels:
+      version: 3.1.1
+    serviceAccount: spark-test-spark
+  executor:
+    cores: 1
+    coreLimit: "1"
+    instances: 3
+
+    #spark adds an overhead of 0.40 of configured memory or 384 MB (whichever is max) to the configured memory
+    # if you want to limit your pod memory follow below instructions
+
+    # if your expected pod memory is less than 1344 MB , configure (target memory -384)
+    # example if you want 1024m configure 640 (1024-384)
+    #Pod memory = 640+max (640*0.40,384) = 1024m
+
+    # if your expected pod memory is more than 1344 MB , configure (target memory * (5/7))
+    # example if you want 2048m configure 1463 (2048 * (5/7) = 1462.85)
+    # Pod memory = 1463 + max (1463*0.40,384) = 2048.2
+
+    # describe you executor pod & crosscheck the limit
+
+    memory: 640m
+    labels:
+      version: 3.1.1

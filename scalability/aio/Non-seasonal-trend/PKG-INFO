@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: Non-seasonal-trend
+Version: 0.1.0
+Summary: A Library For Anomaly detection 
+Author: Parameswaran
+Author-email: parameswaran.s@ericsson.com
+Keywords: ML Anomaly detection
+Requires-Python: ~=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# Python Library for Pre-processing 

@@ -1,0 +1,16 @@
+[build-system]
+requires = [
+    'setuptools~=42.0',
+    'wheel~=0.33.0',
+    'numpy~=1.6',
+    'fastapi==0.78.0',
+    'uvicorn==0.17.6',
+    'pydantic==1.9.1',
+    'boto3==1.24.14',
+    'joblib==1.1.0',
+    'scikit-learn==1.1.0',
+    'pandas~=1.4.2',
+    'kubernetes==24.2.0'
+
+]
+build-backend = "setuptools.build_meta"

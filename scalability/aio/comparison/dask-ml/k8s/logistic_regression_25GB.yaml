@@ -1,0 +1,96 @@
+apiVersion: kubernetes.dask.org/v1
+kind: DaskJob
+metadata:
+  name: logistic-regression-job
+  namespace: dask-operator
+spec:
+  job:
+    spec:
+      containers:
+        - name: logistic-regression-job
+          image: "armdocker.rnd.ericsson.se/sandbox/daskperf:v1.0"
+          imagePullPolicy: "Always"
+          command: [ "python","/app/logistic_regression_25GB.py","--input_path","s3a://classification/25GB/","--max_iter","10","--C","3.33","--penalty","l2","--blocksize","262144000" ]
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "1"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+          env:
+            - name: DASK_DISTRIBUTED__COMM_TIMEOUTS__CONNECT
+              value: "120s"
+            - name: DASK_DISTRIBUTED__COMM_TIMEOUTS__TCP
+              value: "120s"
+
+  cluster:
+    spec:
+      worker:
+        replicas: 3
+        spec:
+          containers:
+            - name: worker
+              image: "armdocker.rnd.ericsson.se/sandbox/daskperf:v1.0"
+              imagePullPolicy: "Always"
+              resources:
+                requests:
+                  memory: "2Gi"
+                  cpu: "2"
+                limits:
+                  memory: "2Gi"
+                  cpu: "2"
+              args:
+                - dask-worker
+                - --name
+                - $(DASK_WORKER_NAME)
+
+      scheduler:
+        spec:
+          containers:
+            - name: scheduler
+              image: "armdocker.rnd.ericsson.se/sandbox/daskperf:v1.0"
+              imagePullPolicy: "Always"
+              resources:
+                requests:
+                  memory: "1Gi"
+                  cpu: "1"
+                limits:
+                  memory: "1Gi"
+                  cpu: "1"
+              args:
+                - dask-scheduler
+              ports:
+                - name: tcp-comm
+                  containerPort: 8786
+                  protocol: TCP
+                - name: http-dashboard
+                  containerPort: 8787
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  port: http-dashboard
+                  path: /health
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              livenessProbe:
+                httpGet:
+                  port: http-dashboard
+                  path: /health
+                initialDelaySeconds: 15
+                periodSeconds: 20
+
+        service:
+          type: NodePort
+          selector:
+            dask.org/cluster-name: logistic-regression-job
+            dask.org/component: scheduler
+          ports:
+            - name: tcp-comm
+              protocol: TCP
+              port: 8786
+              targetPort: "tcp-comm"
+            - name: http-dashboard
+              protocol: TCP
+              port: 8787
+              targetPort: "http-dashboard"

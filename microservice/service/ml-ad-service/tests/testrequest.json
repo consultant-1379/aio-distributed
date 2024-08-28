@@ -1,0 +1,13 @@
+{
+  "step": "Prophet",
+  "params": [
+    {
+      "key": "testparam1",
+      "value": "value1"
+    },
+    {
+      "key": "testparam2",
+      "value": "value2"
+    }
+  ]
+}

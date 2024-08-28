@@ -1,0 +1,24 @@
+# worker-spec.yml
+
+kind: Pod
+metadata:  
+  namespace: stoolbox
+  labels:
+    app: sserviceclient
+spec:
+  serviceAccountName: clusteruser
+  restartPolicy: Never
+  containers:
+  - image: armdocker.rnd.ericsson.se/sandbox/sp01:v1.0
+    imagePullPolicy: IfNotPresent    
+    env:
+      - name: EXTRA_PIP_PACKAGES
+        value: git+https://github.com/dask/distributed
+    resources:
+      limits:
+        cpu: "2"
+        memory: 6G
+      requests:
+        cpu: "2"
+        memory: 6G
+

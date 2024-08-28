@@ -1,0 +1,93 @@
+apiVersion: kubernetes.dask.org/v1
+kind: DaskJob
+metadata:
+  name: kmeans-clustering-job
+  namespace: dask-operator
+spec:
+  job:
+    spec:
+      containers:
+        - name: kmeans-clustering-job
+          image: "armdocker.rnd.ericsson.se/sandbox/daskperf:v1.0"
+          imagePullPolicy: "Always"
+          command: [ "python","/app/kmeans_clustering.py","--input_path","s3a://clustering/10GB/"]
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "1"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+
+  cluster:
+    spec:
+      worker:
+        replicas: 3
+        spec:
+          containers:
+            - name: worker
+              image: "armdocker.rnd.ericsson.se/sandbox/daskperf:v1.0"
+              imagePullPolicy: "Always"
+              resources:
+                requests:
+                  memory: "1Gi"
+                  cpu: "1"
+                limits:
+                  memory: "1Gi"
+                  cpu: "1"
+              args:
+                - dask-worker
+                - --name
+                - $(DASK_WORKER_NAME)
+              env:
+                - name: WORKER_ENV
+                  value: hello-world # We dont test the value, just the name
+      scheduler:
+        spec:
+          containers:
+            - name: scheduler
+              image: "armdocker.rnd.ericsson.se/sandbox/daskperf:v1.0"
+              imagePullPolicy: "Always"
+              resources:
+                requests:
+                  memory: "1Gi"
+                  cpu: "1"
+                limits:
+                  memory: "1Gi"
+                  cpu: "1"
+              args:
+                - dask-scheduler
+              ports:
+                - name: tcp-comm
+                  containerPort: 8786
+                  protocol: TCP
+                - name: http-dashboard
+                  containerPort: 8787
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  port: http-dashboard
+                  path: /health
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              livenessProbe:
+                httpGet:
+                  port: http-dashboard
+                  path: /health
+                initialDelaySeconds: 15
+                periodSeconds: 20
+
+        service:
+          type: NodePort
+          selector:
+            dask.org/cluster-name: kmeans-clustering-job
+            dask.org/component: scheduler
+          ports:
+            - name: tcp-comm
+              protocol: TCP
+              port: 8786
+              targetPort: "tcp-comm"
+            - name: http-dashboard
+              protocol: TCP
+              port: 8787
+              targetPort: "http-dashboard"

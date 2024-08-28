@@ -1,0 +1,9 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: dask-operator
+  name: workergroup-patch-role
+rules:
+- apiGroups: ["kubernetes.dask.org"] # "" indicates the core API group
+  resources: ["daskworkergroups","daskworkergroups/scale"]
+  verbs: ["patch"]
